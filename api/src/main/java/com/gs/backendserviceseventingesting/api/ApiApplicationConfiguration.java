@@ -1,5 +1,6 @@
 package com.gs.backendserviceseventingesting.api;
 
+import com.gs.backendserviceseventingesting.api.db.GameEventsRepository;
 import com.gs.backendserviceseventingesting.api.service.GameEventService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class ApiApplicationConfiguration {
 
     @Bean
-    public GameEventService gameEventService() {
-        return new GameEventService();
+    public GameEventService gameEventService(GameEventsRepository eventsRepository) {
+        return new GameEventService(eventsRepository);
     }
 }

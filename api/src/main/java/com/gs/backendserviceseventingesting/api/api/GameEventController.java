@@ -1,6 +1,5 @@
 package com.gs.backendserviceseventingesting.api.api;
 
-
 import com.gs.backendserviceseventingesting.api.model.GameEvent;
 import com.gs.backendserviceseventingesting.api.model.GameEventReceipt;
 import com.gs.backendserviceseventingesting.api.service.GameEventService;
@@ -41,9 +40,17 @@ public class GameEventController {
             value = "/event/{id}"
     )
     public ResponseEntity<GameEvent> getGameEvent(@PathVariable UUID id) {
+        GameEvent gameEvent = gameEventService.getGameEvent(id);
+
+        if (gameEvent != null) {
+            return ResponseEntity
+                    .status(200)
+                    .body(gameEventService.getGameEvent(id));
+        }
+
         return ResponseEntity
-                .status(200)
-                .body(gameEventService.getGameEvent(id));
+                .status(404)
+                .build();
     }
 
     private boolean requestValid(GameEvent gameEvent) {
