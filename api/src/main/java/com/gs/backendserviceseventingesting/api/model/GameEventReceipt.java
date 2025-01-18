@@ -9,15 +9,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Data
-public class GameEvent {
-
-    private UUID playerId;
+public class GameEventReceipt {
 
     private UUID eventId;
-
-    private long timestamp;
-
-    private String eventCode;
-
-    private String eventDesc;
 }
