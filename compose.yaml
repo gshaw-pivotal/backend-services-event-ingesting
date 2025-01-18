@@ -11,6 +11,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  rabbitmq:
+    container_name: game-event-queue
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=game-event-002
+    ports:
+      - 5672:5672
+    networks:
+      - game-event-network
   db:
     container_name: game-event-db
     image: postgres
