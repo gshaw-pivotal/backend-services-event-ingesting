@@ -1,5 +1,6 @@
 services:
   api:
+    container_name: game-event-api
     build: api
     ports:
       - 8800:8800
@@ -7,11 +8,17 @@ services:
       - POSTGRES_DB=game-events
     networks:
       - game-event-network
+    depends_on:
+      db:
+        condition: service_healthy
   db:
+    container_name: game-event-db
     image: postgres
     restart: always
     secrets:
       - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
     networks:
       - game-event-network
     environment:
@@ -19,8 +26,15 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     expose:
       - 5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 secrets:
   db-password:
     file: db/password.txt
 networks:
   game-event-network:
+volumes:
+  db-data:
