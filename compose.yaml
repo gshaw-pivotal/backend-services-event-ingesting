@@ -1,0 +1,26 @@
+services:
+  api:
+    build: api
+    ports:
+      - 8800:8800
+    environment:
+      - POSTGRES_DB=game-events
+    networks:
+      - game-event-network
+  db:
+    image: postgres
+    restart: always
+    secrets:
+      - db-password
+    networks:
+      - game-event-network
+    environment:
+      - POSTGRES_DB=game-events
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    expose:
+      - 5432
+secrets:
+  db-password:
+    file: db/password.txt
+networks:
+  game-event-network:

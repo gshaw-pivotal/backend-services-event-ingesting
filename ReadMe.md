@@ -14,7 +14,23 @@ docker image build -t game-event-api-service:latest .
 
 ## Running Services
 
+### Using Compose
+
+To start up all services from one location, run the following command from the root of the repo:
+
+```bash
+docker compose up -d
+```
+
+To shut down all services run:
+
+```bash
+docker compose down
+```
+
 ### Startup order
+
+When starting separately and NOT using `docker compose` with the `compose.yaml` file provided.
 
 ### Api
 
