@@ -9,15 +9,23 @@ import java.util.UUID;
 
 public class GameEventService {
 
+    private final MessageService messageService;
+
     private final GameEventsRepository gameEventsRepository;
 
-    public GameEventService(GameEventsRepository eventsRepository) {
+    public GameEventService(
+            MessageService messageService,
+            GameEventsRepository eventsRepository
+    ) {
+        this.messageService = messageService;
         this.gameEventsRepository = eventsRepository;
     }
 
     public UUID queueGameEvent(GameEvent gameEvent) {
         UUID eventID = UUID.randomUUID();
         gameEvent.setEventId(eventID);
+
+        messageService.sendMessage(gameEvent);
 
         return eventID;
     }
