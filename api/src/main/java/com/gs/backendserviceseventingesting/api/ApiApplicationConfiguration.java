@@ -24,6 +24,12 @@ public class ApiApplicationConfiguration {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
+    @Value("${spring.rabbitmq.template.exchange}")
+    private String rabbitExchange;
+
+    @Value("${spring.rabbitmq.template.routing-key}")
+    private String rabbitRoutingKey;
+
     @Bean
     public GameEventService gameEventService(
             MessageService messageService,
@@ -33,7 +39,7 @@ public class ApiApplicationConfiguration {
 
     @Bean
     public MessageService messageService(RabbitTemplate rabbitTemplate) {
-        return new MessageService(rabbitTemplate);
+        return new MessageService(rabbitTemplate, rabbitExchange, rabbitRoutingKey);
     }
 
     @Bean
