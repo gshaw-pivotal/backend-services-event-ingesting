@@ -8,13 +8,31 @@ The `api` service is set to run on port 8800. To change this you need to modify 
 
 ```bash
 cd api
-mvn package
+mvn clean package
 docker image build -t game-event-api-service:latest .
+```
+
+### Worker
+
+Located in the `worker` sub-directory.
+
+The `worker` service is set to run on port 8801. To change this you need to modify `application.properties` (see `server.port`), the Dockerfile (see `EXPOSE`) and the docker image run command.
+
+```bash
+cd api
+mvn clean package
+docker image build -t game-event-worker-service:latest .
 ```
 
 ## Running Services
 
 ### Using Docker Compose
+
+Before running the Docker Compose file it is necessary to build the `api` and `worker` services. This can be done in the respective directories of each of these services. To build these applications run the following:
+
+```bash
+mvn clean package
+```
 
 To start up all services from one location, run the following command from the root of the repo:
 
@@ -32,6 +50,10 @@ docker compose down
 
 When starting separately and NOT using `docker compose` with the `compose.yaml` file provided.
 
+### Database
+
+### Queue
+
 ### Api
 
 To start the `api` service:
@@ -39,6 +61,15 @@ To start the `api` service:
 ```bash
 cd api
 docker run -p 8800:8800 game-event-api-service:latest
+```
+
+### Worker
+
+To start the `worker` service:
+
+```bash
+cd worker
+docker run -p 8801:8801 game-event-worker-service:latest
 ```
 
 ## Accessing the DB with Docker
