@@ -3,6 +3,7 @@ package com.gs.backendserviceseventingesting.api;
 import com.gs.backendserviceseventingesting.api.db.GameEventsRepository;
 import com.gs.backendserviceseventingesting.api.service.GameEventService;
 import com.gs.backendserviceseventingesting.api.service.MessageService;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,6 +25,9 @@ public class ApiApplicationConfiguration {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
+    @Value("${spring.rabbitmq.template.queue}")
+    private String rabbitQueue;
+
     @Value("${spring.rabbitmq.template.exchange}")
     private String rabbitExchange;
 
@@ -43,7 +47,7 @@ public class ApiApplicationConfiguration {
     }
 
     @Bean
-    CachingConnectionFactory connectionFactory() {
+    public CachingConnectionFactory connectionFactory() {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(rabbitmqHost);
         cachingConnectionFactory.setUsername(rabbitmqUsername);
         cachingConnectionFactory.setPassword(rabbitmqPassword);
@@ -60,5 +64,24 @@ public class ApiApplicationConfiguration {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;
+    }
+
+    @Bean
+    Queue eventQueue() {
+        return new Queue(rabbitQueue, true);
+    }
+
+    @Bean
+    Exchange eventExchange() {
+        return ExchangeBuilder.directExchange(rabbitExchange).durable(true).build();
+    }
+
+    @Bean
+    Binding binding() {
+        return BindingBuilder
+                .bind(eventQueue())
+                .to(eventExchange())
+                .with(rabbitRoutingKey)
+                .noargs();
     }
 }
