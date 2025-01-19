@@ -11,6 +11,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  worker:
+    container_name: game-event-worker
+    build: backup-to-delete
+    ports:
+      - 8801:8801
+    environment:
+      - POSTGRES_DB=game-events
+    networks:
+      - game-event-network
+    depends_on:
+      db:
+        condition: service_healthy
   rabbitmq:
     container_name: game-event-queue
     image: rabbitmq:latest
