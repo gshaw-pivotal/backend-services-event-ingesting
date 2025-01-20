@@ -45,7 +45,7 @@ public class GameEventController {
         if (gameEvent != null) {
             return ResponseEntity
                     .status(200)
-                    .body(gameEventService.getGameEvent(id));
+                    .body(gameEvent);
         }
 
         return ResponseEntity
@@ -60,10 +60,13 @@ public class GameEventController {
         if (gameEvent.getPlayerId() == null) {
             return false;
         }
-        if (gameEvent.getEventCode().isBlank()) {
+        if (gameEvent.getTimestamp() == null) {
             return false;
         }
-        if (gameEvent.getEventDesc().isBlank()) {
+        if (gameEvent.getEventCode() == null || gameEvent.getEventCode().isBlank()) {
+            return false;
+        }
+        if (gameEvent.getEventDesc() == null || gameEvent.getEventDesc().isBlank()) {
             return false;
         }
 

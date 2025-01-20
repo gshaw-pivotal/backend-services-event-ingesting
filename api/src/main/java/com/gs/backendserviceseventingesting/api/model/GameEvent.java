@@ -15,7 +15,7 @@ public class GameEvent {
 
     private UUID eventId;
 
-    private long timestamp;
+    private Long timestamp;
 
     private String eventCode;
 
