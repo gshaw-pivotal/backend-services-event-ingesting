@@ -33,11 +33,11 @@ public class GameEventService {
     public GameEvent getGameEvent(UUID gameEventId) {
         Optional<Event> event = gameEventsRepository.findById(gameEventId);
 
-        if (event.isPresent()) {
-            return createGameEvent(event.get());
+        if (event.isEmpty()) {
+            return null;
         }
 
-        return null;
+        return createGameEvent(event.get());
     }
 
     private GameEvent createGameEvent(Event event) {
