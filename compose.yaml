@@ -1,4 +1,5 @@
 services:
+# This is the api service that provides a REST API
   api:
     container_name: game-event-api
     build: api
@@ -11,6 +12,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+# This is the worker service that process events / messages from the queue
   worker:
     container_name: game-event-worker
     build: worker
@@ -23,6 +25,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+# This is the queue system that the api sends to and the worker consumes from
   rabbitmq:
     container_name: game-event-queue
     image: rabbitmq:latest
@@ -33,6 +36,7 @@ services:
       - 5672:5672
     networks:
       - game-event-network
+# This is the database in which the events are stored
   db:
     container_name: game-event-db
     image: postgres
