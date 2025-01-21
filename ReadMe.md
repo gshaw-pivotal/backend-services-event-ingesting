@@ -96,11 +96,15 @@ Spring Boot; with Spring Boot Starter Web; is a common approach to building and 
 
 Spring Boot also integrates with RabbitMQ via Spring Boot Starter Amqp which makes it easier to have a Spring Boot based service integrate with RabbitMQ messaging / queuing. This ease of integration makes it easy to have the Api service send messages to a RabbitMq queue for another service to consume. Thus the level of setup and configuration required within the application is minimal.
 
+An alternative to using Java and Spring Boot could be Node.js, especially if the Api service has minimal processing work.
+
 ### Queue and Worker
 
-RabbitMQ was used to provide the queue while Java and Spring Boot were used to develop the Worker service.
+RabbitMQ was used to provide the queue while Java and Spring Boot (with Spring Boot Starter Amqp) were used to develop the Worker service.
 
 Similar to the Api service, Spring Boot was chosen due to the ease of integrating a Spring Boot based application with RabbitMQ. A listener can be easily created and when a message arrives on the queue being listened to, the associated function / method will run. This makes it easy to have a Spring Boot application consume and process messages as they arrive on the queue.
+
+Similar to the Api service, if the processing requirements are minimal, Node.js may be an option. However, we went with the assumption that there will be some form of data processing by the Worker service when processing events from the queue and thus a multi-threaded technology stack, like Java and Spring Boot is the better option longer term as the complexity of the game event data structure and queue processing grows.
 
 ### Database
 
@@ -110,3 +114,23 @@ A NoSQL database like MongoDB could be an alternative if we are able to treat ea
 
 ### System Structure
 
+The system is made of 4 main parts:
+- Api service, which handles the requests to save/store game events and retrieve previously saved/stored game events. The Api service validates a save request and then publishes onto a queue for later processing
+- Queue, using RabbitMQ the Api service publishes to this queue and the Worker service consumes / listens to this queue. The game event is published and consumed via the queue. This allows for asynchronous processing of the game events.
+- Worker service, which listens to the queue and when a message (game event) is present, consumes it and processes it, ultimately storing it in the database.
+- Database, a SQL database using Postgres to store all of the game events that are saved to it via the Worker service. The Api service also queries this database to get the details of a particular game event.
+
+As mentioned previously, the design is based around keeping the system simple while maintaining the separation between components.
+
+A `Game Event` currently contains a set of key fields:
+- `playerId` an unique identifier for the player that generated the event. The player is identified via a UUID.
+- `eventId` an unique identifier that identifies a given game event. The Api service generates this UUID for each new game event that it receives through its POST endpoint. This UUID is used by the Api service to query the database when it is being asked to return the details for a given game event.
+- `timestamp` the timestamp of when the event happens, stored as a Long using the milliseconds since epoch. This simplifies processing by all components in the system and means none of the components have to directly concern themselves with timezones. This timestamp is provided in the request sent to the POST endpoint of the Api service
+- `eventCode` a string that identifies the type of game event a particular event is. This code is limited to a length of 10 characters.
+- `eventDesc` a string that provides a description about what the game event is. There is no limit to the length of this description beyond practical limitations of string representation in Java or text type in Postgres.
+
+This structure can be expanded in the future as the nature of game events evolve.
+
+In the docker compose specification we have set up both the Api and Worker services to have dependencies on the database and will not start until the database is running and healthy. Without a running database and given this system's current configuration, there would be no value in having either of these services running and operating, hence this dependency which will stop a user from submitting new game events when there is no way for them to be persisted into the database.
+
+The Api service is responsible for ensuring there is an appropriate table in the database via its `schema.sql` file. This could easily be done in either the Api or Worker service and there is no real advantage of one over the other as long as only one service is responsible for this. Duplicating this would just cause unnecessary work (creating twice).
