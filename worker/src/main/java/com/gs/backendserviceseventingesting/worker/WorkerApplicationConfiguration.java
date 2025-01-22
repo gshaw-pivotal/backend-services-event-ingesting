@@ -2,6 +2,7 @@ package com.gs.backendserviceseventingesting.worker;
 
 import com.gs.backendserviceseventingesting.worker.db.GameEventsRepository;
 import com.gs.backendserviceseventingesting.worker.service.QueueProcessingService;
+import com.gs.backendserviceseventingesting.worker.service.QueueRetryService;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -33,8 +34,16 @@ public class WorkerApplicationConfiguration {
     private String rabbitRoutingKey;
 
     @Bean
-    public QueueProcessingService queueProcessingService(GameEventsRepository eventsRepository) {
-        return new QueueProcessingService(eventsRepository);
+    public QueueProcessingService queueProcessingService(
+            GameEventsRepository eventsRepository,
+            QueueRetryService queueRetryService
+    ) {
+        return new QueueProcessingService(eventsRepository, queueRetryService);
+    }
+
+    @Bean
+    public QueueRetryService messageService(RabbitTemplate rabbitTemplate) {
+        return new QueueRetryService(rabbitTemplate, rabbitExchange, rabbitRoutingKey);
     }
 
     @Bean
