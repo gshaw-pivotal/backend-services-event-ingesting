@@ -34,7 +34,7 @@ public class QueueProcessingService {
             System.out.println("Exception processing event: " + e.getMessage() );
 
             // Call retry service to send back onto the queue
-            Long eventRetryCount = event.getMessageProperties().getRetryCount();
+            long eventRetryCount = event.getMessageProperties().getRetryCount();
             if (eventRetryCount < maxRetryAttempts) {
                 event.getMessageProperties().incrementRetryCount();
                 queueRetryService.resendMessage(event);

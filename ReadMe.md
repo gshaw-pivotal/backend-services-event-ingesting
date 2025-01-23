@@ -117,7 +117,7 @@ A NoSQL database like MongoDB could be an alternative if we are able to treat ea
 The system is made of 4 main parts:
 - Api service, which handles the requests to save/store game events and retrieve previously saved/stored game events. The Api service validates a save request and then publishes onto a queue for later processing
 - Queue, using RabbitMQ the Api service publishes to this queue and the Worker service consumes / listens to this queue. The game event is published and consumed via the queue. This allows for asynchronous processing of the game events.
-- Worker service, which listens to the queue and when a message (game event) is present, consumes it and processes it, ultimately storing it in the database.
+- Worker service, which listens to the queue and when a message (game event) is present, consumes it and processes it, ultimately storing it in the database. The Worker service also has a basic retry mechanism should processing of an event from the message queue fail. The event will be put back on the queue for processing again. Each message will get 5 attempts after which it will be discarded.
 - Database, a SQL database using Postgres to store all of the game events that are saved to it via the Worker service. The Api service also queries this database to get the details of a particular game event.
 
 As mentioned previously, the design is based around keeping the system simple while maintaining the separation between components.
